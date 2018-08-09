@@ -35,11 +35,19 @@ class Model:
 			self.dataset.set[i].refresh_e()
 		
 	def smo(self):
+		# 第一轮
 		out = 0
 		for i in range(len(self.dataset.set)):
 			self.dataset.set[i].predict = self.function(i)
 			self.dataset.set[i].refresh_e()
+		for i in range(len(self.dataset.set)):
+			node_i = i
+			node_j = self.select_a2(node_i)
+			self.update(node_i, node_j)
+		# 第二轮
+		round_num = 0
 		while True:
+			round_num += 1
 			temp_a = copy.copy(self.a)
 			node_i = self.select_a1()
 			node_j = self.select_a2(node_i)
@@ -50,7 +58,9 @@ class Model:
 				out = 0
 			if out == 3:
 				break
-	
+			if round_num >= 1000000:
+				break
+		
 	@staticmethod
 	def kernel_function(xi, xj, k="liner"):
 		if k == "liner":
@@ -60,7 +70,7 @@ class Model:
 		temp_false = 0
 		temp_node = random.randint(0, len(self.dataset.set))
 		for i in range(len(self.dataset.set)):
-			if self.kkt(i) > temp_false:
+			if self.kkt(i) > temp_false and 0 < self.a[i] < self.C:
 				temp_node = i
 				temp_false = self.kkt(i)
 			if temp_false == 3:
